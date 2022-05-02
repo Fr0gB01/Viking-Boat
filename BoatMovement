@@ -1,0 +1,64 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class Boat : MonoBehaviour { 
+//Movement 
+public float moveSpeed = 1f; 
+public float mutiply = 10f; 
+public float Hmove; 
+public float Vmove;
+
+//Direction 
+Vector3 Wind; 
+Vector3 moveDirection; 
+public Rigidbody rb; 
+
+//Cooldown 
+public bool Row = false;
+
+  void FixedUpdate()
+  {
+      Inputs();   
+  }
+
+  //Inputs for movement
+  void Inputs()
+  {
+      Hmove = Input.GetAxisRaw("Horizontal");
+      Vmove = Input.GetAxisRaw("Vertical");
+
+      //Gets Direction
+      moveDirection = transform.forward * Vmove + transform.right * Hmove;
+      Wind = transform.forward;
+
+      //Rotates the boat
+      transform.Rotate(Vector3.up * Hmove / 2);
+
+      //Allows boat to sail across water
+      rb.AddForce(moveDirection.normalized * moveSpeed, ForceMode.Acceleration);
+      rb.AddForce(Wind.normalized * moveSpeed * mutiply, ForceMode.Acceleration);
+
+      //Gives boat a speed boost. the Row boolean is a cooldown for the 
+      if(Input.GetKeyDown("w"))
+      {
+          if(Row == false)
+          {
+              StartCoroutine(RowBoat());
+              Row = true;
+          } else {
+              Debug.Log("Wait");
+          }
+      }
+  }
+
+  //Gives boat a speed boost and then tells it to wait a few seconds before starting again
+  IEnumerator RowBoat()
+  {
+      moveSpeed += 7;
+      yield return new WaitForSeconds(1);
+      moveSpeed -= 7;
+      yield return new WaitForSeconds(2);
+      Row = false;
+  }
+}
